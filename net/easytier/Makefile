@@ -1,41 +1,24 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=easytier
-PKG_VERSION:=2.4.5
+PKG_VERSION:=2.5.0
+PKG_RELEASE:=1
 
-ifeq ($(ARCH),mipsel)
-	APP_ARCH:=mipsel
-endif
-ifeq ($(ARCH),mips)
-	APP_ARCH:=mips
-endif
-ifeq ($(ARCH),arm)
-	APP_ARCH:=arm
-endif
-ifeq ($(BOARD),kirkwood)
-	APP_ARCH:=arm
-endif
-ifeq ($(ARCH),armv7)
-	APP_ARCH:=armv7
-endif
-ifeq ($(ARCH),aarch64)
-	APP_ARCH:=aarch64
-endif
-ifeq ($(ARCH),arm64)
-	APP_ARCH:=aarch64
-endif
-ifeq ($(ARCH),armv8)
-	APP_ARCH:=aarch64
-endif
-ifeq ($(ARCH),x86_64)
-	APP_ARCH:=x86_64
-endif
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/EasyTier/EasyTier/tar.gz/v$(PKG_VERSION)?
+PKG_HASH:=ed3f3ad4eb08c11588660eb90239e1f548f8f724718ec27779cb09825ec3ac8e
+PKG_BUILD_DIR:=$(BUILD_DIR)/EasyTier-$(PKG_VERSION)
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
+PKG_LICENSE:=LGPL-3.0-only
+PKG_LICENSE_FILES:=LICENSE
+
+PKG_BUILD_DEPENDS:=rust/host
+PKG_BUILD_PARALLEL:=1
 
 include $(INCLUDE_DIR)/package.mk
+include ../../lang/rust/rust-package.mk
 
-define Package/$(PKG_NAME)
+define Package/easytier
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=A simple, decentralized mesh VPN with WireGuard support.
@@ -43,23 +26,13 @@ define Package/$(PKG_NAME)
 	URL:=https://github.com/EasyTier/EasyTier
 endef
 
-define Package/$(PKG_NAME)/description
+define Package/easytier/description
   A simple, decentralized mesh VPN with WireGuard support.
 endef
 
-define Build/Prepare
-	[ ! -f $(PKG_BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION).zip ] && wget https://github.com/EasyTier/EasyTier/releases/download/v$(PKG_VERSION)/$(PKG_NAME)-linux-$(APP_ARCH)-v$(PKG_VERSION).zip -O $(PKG_NAME)-$(PKG_VERSION).zip
-	unzip -j $(PKG_NAME)-$(PKG_VERSION).zip -d $(PKG_BUILD_DIR)
-endef
-
 define Build/Compile
+	$(call Build/Compile/Cargo,easytier)
 endef
 
-define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/easytier-core $(1)/usr/bin/easytier-core
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/easytier-cli $(1)/usr/bin/easytier-cli
-	[ "$(APP_ARCH)" != "mips" ] && [ "$(APP_ARCH)" != "mipsel" ] && $(INSTALL_BIN) $(PKG_BUILD_DIR)/easytier-web-embed $(1)/usr/bin/easytier-web || true
-endef
-
-$(eval $(call BuildPackage,$(PKG_NAME)))
+$(eval $(call RustBinPackage,easytier))
+$(eval $(call BuildPackage,easytier))
