@@ -5,25 +5,29 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sing-box
-PKG_VERSION:=1.12.20
+PKG_VERSION:=1.13.14
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/SagerNet/sing-box/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=af0a815b54d04754e42daa0734025fb5720a26d86896a241598bc214f72a9567
+PKG_HASH:=d18294eb00128743b1dbf1d5f4f01902bdfd59a2d2858cda809abe5351a9cd40
 
 PKG_LICENSE:=GPL-3.0-or-later
 PKG_LICENSE_FILES:=LICENSE
 PKG_MAINTAINER:=Tianling Shen <cnsztl@immortalwrt.org>
+PKG_CPE_ID:=cpe:/a:sagernet:sing-box
 
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_SING_BOX_BUILD_ACME \
+	CONFIG_SING_BOX_BUILD_CCM \
 	CONFIG_SING_BOX_BUILD_CLASH_API \
+	CONFIG_SING_BOX_BUILD_CLOUDFLARED \
 	CONFIG_SING_BOX_BUILD_DHCP \
 	CONFIG_SING_BOX_BUILD_EMBEDDED_TOR \
 	CONFIG_SING_BOX_BUILD_GRPC \
 	CONFIG_SING_BOX_BUILD_GVISOR \
 	CONFIG_SING_BOX_BUILD_NAIVE_OUTBOUND \
+	CONFIG_SING_BOX_BUILD_OCM \
 	CONFIG_SING_BOX_BUILD_QUIC \
 	CONFIG_SING_BOX_BUILD_TAILSCALE \
 	CONFIG_SING_BOX_BUILD_UTLS \
@@ -66,8 +70,16 @@ define Package/sing-box/config
     bool "Build with ACME TLS certificate issuer support"
     default y
 
+    config CONFIG_SING_BOX_BUILD_CCM
+    bool "Build with Claude Code Multiplexer service support"
+    default y
+
     config SING_BOX_BUILD_CLASH_API
     bool "Build with Clash API support"
+    default y
+
+    config CONFIG_SING_BOX_BUILD_CLOUDFLARED
+    bool "Build with Cloudflare Tunnel inbound support"
     default y
 
     config SING_BOX_BUILD_DHCP
@@ -88,6 +100,10 @@ define Package/sing-box/config
 
     config SING_BOX_BUILD_NAIVE_OUTBOUND
     bool "Build with NaiveProxy outbound support"
+
+    config CONFIG_SING_BOX_BUILD_OCM
+    bool "Build with OpenAI Codex Multiplexer service support"
+    default y
 
     config SING_BOX_BUILD_QUIC
     bool "Build with QUIC support"
@@ -115,12 +131,15 @@ endef
 
 GO_PKG_TAGS:=$(subst $(space),$(comma),$(strip \
 	$(if $(CONFIG_SING_BOX_BUILD_ACME),with_acme) \
+	$(if $(CONFIG_SING_BOX_BUILD_CCM),with_ccm) \
 	$(if $(CONFIG_SING_BOX_BUILD_CLASH_API),with_clash_api) \
+	$(if $(CONFIG_SING_BOX_BUILD_CLOUDFLARED),with_cloudflared) \
 	$(if $(CONFIG_SING_BOX_BUILD_DHCP),with_dhcp) \
 	$(if $(CONFIG_SING_BOX_BUILD_EMBEDDED_TOR),with_embedded_tor) \
 	$(if $(CONFIG_SING_BOX_BUILD_GRPC),with_grpc) \
 	$(if $(CONFIG_SING_BOX_BUILD_GVISOR),with_gvisor) \
 	$(if $(CONFIG_SING_BOX_BUILD_NAIVE_OUTBOUND),with_naive_outbound) \
+	$(if $(CONFIG_SING_BOX_BUILD_OCM),with_ocm) \
 	$(if $(CONFIG_SING_BOX_BUILD_QUIC),with_quic) \
 	$(if $(CONFIG_SING_BOX_BUILD_TAILSCALE),with_tailscale) \
 	$(if $(CONFIG_SING_BOX_BUILD_UTLS),with_utls) \
