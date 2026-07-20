@@ -23,7 +23,7 @@ define Package/easytier
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=A simple, decentralized mesh VPN with WireGuard support.
-	DEPENDS:=$(RUST_ARCH_DEPENDS) @!(i386) +kmod-tun +libatomic
+	DEPENDS:=$(RUST_ARCH_DEPENDS) @!(i386) +kmod-tun
 	URL:=https://github.com/EasyTier/EasyTier
 endef
 
@@ -63,9 +63,6 @@ ifeq ($(CONFIG_EASYTIER_WEB),y)
 	)
 endif
 endef
-
-CARGO_PKG_VARS += PROTOC=$(STAGING_DIR_HOSTPKG)/bin/protoc
-CARGO_RUSTFLAGS += -C link-args=-latomic
 
 define Build/Compile
 	$(call Build/Compile/Cargo,easytier)
